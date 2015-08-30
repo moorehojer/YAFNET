@@ -59,7 +59,7 @@ namespace YAF.Core.Services.Auth
         /// </returns>
         public string GetAuthorizeUrl(HttpRequest request)
         {
-            const string SCOPE = "email,user_birthday,status_update,publish_stream,user_location";
+			const string SCOPE = "email,user_birthday,user_location";
 
             var redirectUrl = this.GetRedirectURL(request);
 
@@ -121,7 +121,7 @@ namespace YAF.Core.Services.Auth
         /// </returns>
         public FacebookUser GetFacebookUser(HttpRequest request, string access_token)
         {
-            var url = "https://graph.facebook.com/me?access_token={0}".FormatWith(access_token);
+			var url = "https://graph.facebook.com/me?fields=id%2Cbirthday%2Clocation%2Ctimezone%2Cemail%2Cfirst_name%2Cgender%2Clast_name%2Cmiddle_name%2Cname&access_token={0}".FormatWith(access_token);
 
             return AuthUtilities.WebRequest(AuthUtilities.Method.GET, url, string.Empty).FromJson<FacebookUser>();
         }
@@ -278,9 +278,9 @@ namespace YAF.Core.Services.Auth
                 }
             }
 
-            // Only validated logins can go here
-            if (!YafContext.Current.IsGuest)
-            {
+			// Create User if not exists?!
+			if (!YafContext.Current.IsGuest && !YafContext.Current.Get<YafBoardSettings>().DisableRegistrations)
+			{
                 // match the email address...
                 if (facebookUser.Email != YafContext.Current.CurrentUserData.Email)
                 {
